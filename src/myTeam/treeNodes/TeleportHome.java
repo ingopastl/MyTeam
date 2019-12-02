@@ -4,7 +4,7 @@ import behavior_tree.BTNode;
 import behavior_tree.BTStatus;
 import myTeam.Player;
 
-public class ReturnToHome extends BTNode<Player> {
+public class TeleportHome extends BTNode<Player> {
 
 	@Override
 	public BTStatus tick(Player agent) {

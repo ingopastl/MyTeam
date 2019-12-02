@@ -12,6 +12,7 @@ import easy_soccer_lib.utils.Vector2D;
 import myTeam.treeNodes.*;
 import myTeam.treeNodes.matchStateVerifiers.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Player extends Thread {
@@ -20,20 +21,88 @@ public class Player extends Thread {
     private PlayerCommander commander;
 
     private Vector2D homePosition;
+    private Vector2D offensivePosition;
+    private Vector2D defensivePosition;
     private Vector2D goalPosition;
+
     private int uniformNumber;
+    private boolean hasBall;
 
     private PlayerPerception selfPerception;
     private FieldPerception fieldPerception;
     private MatchPerception matchPerception;
 
+    private static List<String> broadcastMessagesList;
+
+    public static List<String> getBroadcastMessagesListInstance() {
+        if (broadcastMessagesList == null) {
+            broadcastMessagesList = new ArrayList<>();
+        }
+        return broadcastMessagesList;
+    }
 
     public Player(PlayerCommander commander, Vector2D homePosition, int uniformNumber) {
         this.commander = commander;
         this.homePosition = homePosition;
         this.uniformNumber = uniformNumber;
-
+        this.hasBall = false;
         this.behaviorTree = buildTree();
+
+        switch (this.uniformNumber) {
+            case 1:
+                this.offensivePosition = new Vector2D(-4, -21);
+                this.defensivePosition = this.homePosition;
+                break;
+            case 2:
+                this.offensivePosition = new Vector2D(-10, 0);
+                this.defensivePosition = this.homePosition;
+                break;
+            case 3:
+                this.offensivePosition = new Vector2D(-4, 20);
+                this.defensivePosition = this.homePosition;
+                break;
+            case 4:
+                this.offensivePosition = new Vector2D(28, -20);
+                this.defensivePosition = this.homePosition;
+                break;
+            case 5:
+                this.offensivePosition = new Vector2D(42, -9);
+                this.defensivePosition = this.homePosition;
+                break;
+            case 6:
+                this.offensivePosition = new Vector2D(28, 20);
+                this.defensivePosition = this.homePosition;
+                break;
+            case 7:
+                this.offensivePosition = new Vector2D(42, 9);
+                this.defensivePosition = this.homePosition;
+                break;
+
+        }
+    }
+
+    public Vector2D getOffensivePosition() {
+        return offensivePosition;
+    }
+
+    public void setOffensivePosition(Vector2D offensivePosition) {
+        this.offensivePosition = offensivePosition;
+    }
+
+    public Vector2D getDefensivePosition() {
+        return defensivePosition;
+    }
+
+    public void setDefensivePosition(Vector2D defensivePosition) {
+        this.defensivePosition = defensivePosition;
+    }
+
+    public boolean hasBall() {
+        return hasBall;
+    }
+
+    public void setHasBall(boolean hasBall) {
+        this.hasBall = hasBall;
     }
 
     public int getUniformNumber() {
@@ -112,15 +181,57 @@ public class Player extends Thread {
         }
     }
 
+    private BTNode<Player> buildOffensiveTree() {
+        Sequence<Player> advance = new Sequence<>("Has Ball");
+        advance.add(new IfWithBall());
+        advance.add(new AdvanceWithBallToGoal());
+        advance.add(new KickToScore());
+
+        Sequence<Player> intercept = new Sequence<>("Closest to Ball");
+        intercept.add(new IfClosestPlayerToBall());
+        intercept.add(new GoGetTheBall());
+
+        Sequence<Player> goToOffensivePosition = new Sequence<>("Go to Offensive Position");
+        goToOffensivePosition.add(new IfNotOnOffensivePosition());
+        goToOffensivePosition.add(new DashToOffensivePosition());
+
+        Selector<Player> behavior = new Selector<>("Attack Behavior");
+        behavior.add(advance);
+        behavior.add(intercept);
+        behavior.add(goToOffensivePosition);
+
+        Sequence<Player> offensive = new Sequence<>("Offensive tree");
+        offensive.add(new IfTeamHasBall());
+        offensive.add(behavior);
+
+        return offensive;
+    }
+
+    private BTNode<Player> buildDefensiveTree() {
+        Sequence<Player> intercept = new Sequence<>();
+        intercept.add(new IfClosestPlayerToBall());
+        intercept.add(new GoGetTheBall());
+
+        Sequence<Player> dashHome = new Sequence<>();
+        dashHome.add(new IfNotHome());
+        dashHome.add(new DashToDefensivePosition());
+
+        Selector<Player> defensive = new Selector<>("Defensive tree");
+        defensive.add(intercept);
+        defensive.add(dashHome);
+
+        return defensive;
+    }
+
     private BTNode<Player> buildRegularTree() {
 
         Sequence<Player> afterGoalRight = new Sequence<>("After Goal Right");
         afterGoalRight.add(new IfAfterGoalRight());
-        afterGoalRight.add(new ReturnToHome());
+        afterGoalRight.add(new TeleportHome());
 
         Sequence<Player> afterGoalLeft = new Sequence<>("After Goal Left");
         afterGoalLeft.add(new IfAfterGoalLeft());
-        afterGoalLeft.add(new ReturnToHome());
+        afterGoalLeft.add(new TeleportHome());
 
         Sequence<Player> kickOffLeft = new Sequence<>("Kick Off Left");
         kickOffLeft.add(new IfKickOffLeft());
@@ -136,27 +247,14 @@ public class Player extends Thread {
         kickOffRight.add(new GoGetTheBall());
         kickOffRight.add(new PassBallToNearestPlayer());
 
-        Sequence<Player> tryToScore = new Sequence<>();
-        tryToScore.add(new IfCloseToGoal());
-        tryToScore.add(new KickToScore());
-
-        Selector<Player> attacking = new Selector<>();
-        attacking.add(tryToScore);
-        attacking.add(new AdvanceWithBallToGoal());
-
-        Sequence<Player> playOn = new Sequence<>("Play On");
-        playOn.add(new IfPlayOn());
-        playOn.add(new IfClosestPlayerToBall());
-        playOn.add(new GoGetTheBall());
-        playOn.add(attacking);
-
 
         Selector<Player> root = new Selector<>("Root");
         root.add(afterGoalLeft);
         root.add(afterGoalRight);
         root.add(kickOffLeft);
         root.add(kickOffRight);
-        root.add(playOn);
+        root.add(buildOffensiveTree());
+        root.add(buildDefensiveTree());
 
         return root;
     }
@@ -165,11 +263,11 @@ public class Player extends Thread {
 
         Sequence<Player> afterGoalRight = new Sequence<>("After Goal Right");
         afterGoalRight.add(new IfAfterGoalRight());
-        afterGoalRight.add(new ReturnToHome());
+        afterGoalRight.add(new TeleportHome());
 
         Sequence<Player> afterGoalLeft = new Sequence<>("After Goal Left");
         afterGoalLeft.add(new IfAfterGoalLeft());
-        afterGoalLeft.add(new ReturnToHome());
+        afterGoalLeft.add(new TeleportHome());
 
         Sequence<Player> playOn = new Sequence<>("Play On");
         playOn.add(new IfPlayOn());
@@ -178,7 +276,7 @@ public class Player extends Thread {
         Sequence<Player> defend = new Sequence<>("Defend");
         defend.add(new IfCloseToBall());
         defend.add(new GoGetTheBall());
-        defend.add(new CatchBall());
+        defend.add(new KickBallAway());
 
         Selector<Player> root = new Selector<>("Root");
         root.add(afterGoalLeft);

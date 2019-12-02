@@ -12,10 +12,14 @@ public class GoGetTheBall extends BTNode<Player> {
     public BTStatus tick(Player agent) {
         Vector2D ballPosition = agent.getFieldPerception().getBall().getPosition();
 
+        if (!agent.isCloseTo(ballPosition, 10.0)) {
+            return BTStatus.FAILURE;
+        }
+
         //condicao desejada: perto da bola (dist < 3)
         if (agent.isCloseTo(ballPosition, 3.0)) {
-            print("PERTO!");
-            agent.getSelfPerception().setState(EPlayerState.HAS_BALL);
+            agent.setHasBall(true);
+            Player.getBroadcastMessagesListInstance().add("TeamHasBall");
             return BTStatus.SUCCESS;
         }
 

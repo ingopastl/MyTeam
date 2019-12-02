@@ -12,10 +12,11 @@ public class AdvanceWithBallToGoal extends BTNode<Player> {
 	@Override
 	public BTStatus tick(Player agent) {
 		Vector2D ballPos = agent.getFieldPerception().getBall().getPosition();
-		
+
 		//condicao ruim extrema: longe da bola
 		if (!agent.isCloseTo(ballPos, 10.0)) {
-			agent.getSelfPerception().setState(EPlayerState.NULL);
+			agent.setHasBall(false);
+			Player.getBroadcastMessagesListInstance().add("LostBall");
 			return BTStatus.FAILURE;
 		}
 

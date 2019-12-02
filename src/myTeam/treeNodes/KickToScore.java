@@ -13,15 +13,13 @@ public class KickToScore extends BTNode<Player> {
 		Vector2D ballPos = agent.getFieldPerception().getBall().getPosition();
 
 		if (!agent.isCloseTo(ballPos, 3.0) || !agent.isCloseTo(agent.getGoalPosition(), 20)) {
-			agent.getSelfPerception().setState(EPlayerState.NULL);
 			return BTStatus.FAILURE;
 		}
 		
 		if (agent.isAlignedTo(ballPos)) {
 			if (agent.isCloseTo(ballPos, 1.0)) {
 				//da um chute com forca maxima (100)
-				agent.getCommander().doKickToPoint(100.0d, agent.getGoalPosition());
-				agent.getSelfPerception().setState(EPlayerState.NULL);
+				agent.getCommander().doKickToPoint(100.0d, ballPos);
 				return BTStatus.SUCCESS;
 			} else {
 				//corre com forca intermediaria (porque esta perto da bola)
