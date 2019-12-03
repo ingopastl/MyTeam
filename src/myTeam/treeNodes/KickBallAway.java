@@ -12,13 +12,13 @@ public class KickBallAway extends BTNode<Player> {
         Vector2D ballPos = agent.getFieldPerception().getBall().getPosition();
 
         if (agent.isAlignedTo(ballPos)) {
-            if (agent.isCloseTo(ballPos, 3.0)) {
+            if (agent.isCloseTo(ballPos, 1.0)) {
                 //da um chute com forca maxima (100)
                 agent.getCommander().doKickToPoint(100.0d, agent.getGoalPosition());
                 return BTStatus.SUCCESS;
             } else {
                 //corre com forca intermediaria (porque esta perto da bola)
-                agent.getCommander().doDashBlocking(100.0d);
+                agent.getCommander().doDashBlocking(60.0d);
             }
         } else {
             agent.getCommander().doTurnToPoint(ballPos);

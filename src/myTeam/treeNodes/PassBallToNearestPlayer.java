@@ -15,14 +15,18 @@ public class PassBallToNearestPlayer extends BTNode<Player> {
 
         //condicao ruim extrema: longe demais da bola
         if (!agent.isCloseTo(ballPosition, 3.0)) {
-            agent.getSelfPerception().setState(EPlayerState.NULL);
             return BTStatus.FAILURE;
         }
 
         if (agent.isAlignedTo(ballPosition)) {
             if (agent.isCloseTo(ballPosition, 1.0)) {
-                agent.getCommander().doKickToPoint(50.0d, nearestTeammatePosition);
-                agent.getSelfPerception().setState(EPlayerState.NULL);
+                if (agent.isCloseTo(nearestTeammatePosition, 10.d)) {
+                    agent.getCommander().doKickToPoint(50.0d, nearestTeammatePosition);
+                } else if (agent.isCloseTo(nearestTeammatePosition, 20.d)) {
+                    agent.getCommander().doKickToPoint(70.0d, nearestTeammatePosition);
+                } else {
+                    agent.getCommander().doKickToPoint(100.0d, nearestTeammatePosition);
+                }
                 return BTStatus.SUCCESS;
             } else {
                 //corre com forca intermediaria (porque esta perto da bola)

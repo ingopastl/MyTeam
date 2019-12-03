@@ -17,9 +17,14 @@ public class DashToDefensivePosition extends BTNode<Player> {
         }
 
         if (agent.isAlignedTo(defensivePosition)) {
-            agent.getCommander().doDashBlocking(60.0d);
+            if (agent.isCloseTo(defensivePosition, 3.0d)) {
+                agent.getCommander().doDashBlocking(5.0d);
+            } else {
+                agent.getCommander().doDashBlocking(80.0d);
+            }
         } else {
             agent.getCommander().doTurnToPoint(defensivePosition);
+            return BTStatus.RUNNING;
         }
 
         return BTStatus.SUCCESS;
