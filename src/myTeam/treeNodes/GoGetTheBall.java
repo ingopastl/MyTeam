@@ -18,8 +18,6 @@ public class GoGetTheBall extends BTNode<Player> {
 
         //condicao desejada: perto da bola (dist < 3)
         if (agent.isCloseTo(ballPosition, 3.0)) {
-            agent.setHasBall(true);
-            Player.getBroadcastMessagesListInstance().add("TeamHasBall");
             return BTStatus.SUCCESS;
         }
 

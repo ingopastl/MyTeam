@@ -18,8 +18,6 @@ public class AdvanceWithBallToGoal extends BTNode<Player> {
 
 		//condicao ruim extrema: longe da bola
 		if (!agent.isCloseTo(ballPos, 10.0)) {
-			agent.setHasBall(false);
-			Player.getBroadcastMessagesListInstance().add("LostBall");
 			return BTStatus.FAILURE;
 		}
 

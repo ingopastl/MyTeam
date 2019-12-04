@@ -12,7 +12,6 @@ import easy_soccer_lib.utils.Vector2D;
 import myTeam.treeNodes.*;
 import myTeam.treeNodes.matchStateVerifiers.*;
 
-import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -183,22 +182,12 @@ public class Player extends Thread {
     }
 
     private BTNode<Player> buildOffensiveTree() {
-        Sequence<Player> pass = new Sequence<>();
-        pass.add(new IfEnemyIsApproachingAndFarFromGoal());
-        pass.add(new PassBallToNearestPlayer());
-
-        Sequence<Player> advance = new Sequence<>();
-        advance.add(new AdvanceWithBallToGoal());
-        advance.add(new KickToScore());
-
-        Selector<Player> advanceOrPass = new Selector<>();
-        advanceOrPass.add(pass);
-        advanceOrPass.add(advance);
 
         Sequence<Player> intercept = new Sequence<>("Closest to Ball");
         intercept.add(new IfClosestToBall());
         intercept.add(new GoGetTheBall());
-        intercept.add(advanceOrPass);
+        intercept.add(new AdvanceWithBallToGoal());
+        intercept.add(new KickToScore());
 
         Sequence<Player> dashToOffensivePosition = new Sequence<>("Go to Offensive Position");
         dashToOffensivePosition.add(new DashToOffensivePosition());
@@ -236,37 +225,25 @@ public class Player extends Thread {
         beforeKickOff.add(new IfBeforeKickOff());
         beforeKickOff.add(new TeleportHome());
 
-
         Sequence<Player> afterGoalRight = new Sequence<>("After Goal Right");
         afterGoalRight.add(new IfAfterGoalRight());
         afterGoalRight.add(new TeleportHome());
-
 
         Sequence<Player> afterGoalLeft = new Sequence<>("After Goal Left");
         afterGoalLeft.add(new IfAfterGoalLeft());
         afterGoalLeft.add(new TeleportHome());
 
-
-        Sequence<Player> closest = new Sequence<>();
-        closest.add(new IfClosestToBall());
-        closest.add(new MoveToTheLeftOfBall());
-        closest.add(new IfSecondPlayerReady());
-        closest.add(new GoGetTheBall());
-        closest.add(new PassBallToNearestPlayer());
-
-        Sequence<Player> secondClosest = new Sequence<>();
-        secondClosest.add(new IfSecondClosestToBall());
-        secondClosest.add(new MoveToTheRightOfBall());
-        secondClosest.add(new BroadcastSecondPlayerReady());
-
-        Selector<Player> freeKickFaultLeftBehavior = new Selector<>();
-        freeKickFaultLeftBehavior.add(closest);
-        freeKickFaultLeftBehavior.add(secondClosest);
-
         Sequence<Player> freeKickFaultLeft = new Sequence<>();
         freeKickFaultLeft.add(new IfTeamOnTheLeftSide());
-        freeKickFaultLeft.add(freeKickFaultLeftBehavior);
+        freeKickFaultLeft.add(new IfClosestToBall());
+        freeKickFaultLeft.add(new GoGetTheBall());
+        freeKickFaultLeft.add(new PassBallToNearestPlayer());
 
+        Sequence<Player> freeKickFaultRight = new Sequence<>();
+        freeKickFaultRight.add(new IfTeamOnTheRightSide());
+        freeKickFaultRight.add(new IfClosestToBall());
+        freeKickFaultRight.add(new GoGetTheBall());
+        freeKickFaultRight.add(new PassBallToNearestPlayer());
 
         Sequence<Player> kickOffLeft = new Sequence<>("Kick Off Left");
         kickOffLeft.add(new IfKickOffLeft());
@@ -275,7 +252,6 @@ public class Player extends Thread {
         kickOffLeft.add(new GoGetTheBall());
         kickOffLeft.add(new PassBallToNearestPlayer());
 
-
         Sequence<Player> kickOffRight = new Sequence<>("Kick Off Right");
         kickOffRight.add(new IfKickOffRight());
         kickOffRight.add(new IfTeamOnTheRightSide());
@@ -283,12 +259,10 @@ public class Player extends Thread {
         kickOffRight.add(new GoGetTheBall());
         kickOffRight.add(new PassBallToNearestPlayer());
 
-
         Sequence<Player> cornerKickRight = new Sequence<>("Corner Kick Right");
         cornerKickRight.add(new IfCornerKickRight());
         kickOffRight.add(new IfClosestToBall());
         kickOffRight.add(new KickToCorner());
-
 
         Sequence<Player> cornerKickLeft = new Sequence<>("Corner Kick Right");
         cornerKickLeft.add(new IfCornerKickLeft());
@@ -305,19 +279,22 @@ public class Player extends Thread {
         offsideLeft.add(new GoGetTheBall());
         offsideLeft.add(new PassBallToNearestPlayer());
 
-        Selector<Player> playOn = new Selector<>("Play On");
+        Sequence<Player> playOn = new Sequence<>("Play On");
+        playOn.add(new IfPlayOn());
         playOn.add(buildOffensiveTree());
         playOn.add(buildDefensiveTree());
 
 
         Selector<Player> root = new Selector<>("Root");
+        root.add(playOn);
+
         root.add(beforeKickOff);
-        root.add(afterGoalLeft);
-        root.add(afterGoalRight);
 
         root.add(kickOffLeft);
         root.add(kickOffRight);
-        root.add(playOn);
+
+        root.add(afterGoalLeft);
+        root.add(afterGoalRight);
 
         root.add(cornerKickLeft);
         root.add(cornerKickRight);

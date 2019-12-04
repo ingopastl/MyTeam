@@ -14,11 +14,11 @@ public class IfClosestToBall extends BTNode<Player> {
 
     @Override
     public BTStatus tick(Player agent) {
-        PlayerPerception selfPerc = agent.getSelfPerception();
-        FieldPerception fieldPerc = agent.getFieldPerception();
+        PlayerPerception selfPerception = agent.getSelfPerception();
+        FieldPerception fieldPerception = agent.getFieldPerception();
 
-        Vector2D ballPosition = fieldPerc.getBall().getPosition();
-        List<PlayerPerception> myTeam = fieldPerc.getTeamPlayers(selfPerc.getSide());
+        Vector2D ballPosition = fieldPerception.getBall().getPosition();
+        List<PlayerPerception> myTeam = fieldPerception.getTeamPlayers(selfPerception.getSide());
 
         PlayerPerception closestPlayer = agent.getSelfPerception();
         double closestDistance = Double.MAX_VALUE;
@@ -31,11 +31,7 @@ public class IfClosestToBall extends BTNode<Player> {
             }
         }
 
-//		print(5000, "No ", selfPerc.getUniformNumber(), ", pos: ",
-//				selfPerc.getPosition(),	", TEAM ", selfPerc.getSide(),
-//				", CLOSEST? " + (closestPlayer.getUniformNumber() == selfPerc.getUniformNumber()));
-
-        if (closestPlayer.getUniformNumber() == selfPerc.getUniformNumber()) {
+        if (closestPlayer.getUniformNumber() == selfPerception.getUniformNumber()) {
             return BTStatus.SUCCESS;
         } else {
             return BTStatus.FAILURE;
