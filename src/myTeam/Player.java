@@ -51,15 +51,15 @@ public class Player extends Thread {
         switch (this.uniformNumber) {
             case 1:
                 this.offensivePosition = new Vector2D(-4, -21);
-                this.defensivePosition = this.homePosition;
+                this.defensivePosition = new Vector2D(-42, -13);
                 break;
             case 2:
                 this.offensivePosition = new Vector2D(-10, 0);
-                this.defensivePosition = this.homePosition;
+                this.defensivePosition = new Vector2D(-40, 0);
                 break;
             case 3:
                 this.offensivePosition = new Vector2D(-4, 20);
-                this.defensivePosition = this.homePosition;
+                this.defensivePosition = new Vector2D(-42, 13);
                 break;
             case 4:
                 this.offensivePosition = new Vector2D(28, -20);
@@ -224,14 +224,17 @@ public class Player extends Thread {
         Sequence<Player> beforeKickOff = new Sequence<>("Before Kick Off");
         beforeKickOff.add(new IfBeforeKickOff());
         beforeKickOff.add(new TeleportHome());
+        beforeKickOff.add(new FocusOnBall());
 
         Sequence<Player> afterGoalRight = new Sequence<>("After Goal Right");
         afterGoalRight.add(new IfAfterGoalRight());
         afterGoalRight.add(new TeleportHome());
+        afterGoalRight.add(new FocusOnBall());
 
         Sequence<Player> afterGoalLeft = new Sequence<>("After Goal Left");
         afterGoalLeft.add(new IfAfterGoalLeft());
         afterGoalLeft.add(new TeleportHome());
+        afterGoalLeft.add(new FocusOnBall());
 
         Sequence<Player> freeKickFaultLeft = new Sequence<>();
         freeKickFaultLeft.add(new IfTeamOnTheLeftSide());
@@ -281,17 +284,17 @@ public class Player extends Thread {
 
         Sequence<Player> playOn = new Sequence<>("Play On");
         playOn.add(new IfPlayOn());
-        playOn.add(buildOffensiveTree());
-        playOn.add(buildDefensiveTree());
-
+        Selector<Player> offensiveOrDefensive = new Selector<>("Offensive or Defensive");
+        offensiveOrDefensive.add(buildOffensiveTree());
+        offensiveOrDefensive.add(buildDefensiveTree());
+        playOn.add(offensiveOrDefensive);
 
         Selector<Player> root = new Selector<>("Root");
-        root.add(playOn);
-
         root.add(beforeKickOff);
 
         root.add(kickOffLeft);
         root.add(kickOffRight);
+        root.add(playOn);
 
         root.add(afterGoalLeft);
         root.add(afterGoalRight);
