@@ -14,7 +14,7 @@ public class IfBallNotOnOurSide extends BTNode<Player> {
     public BTStatus tick(Player agent) {
         Vector2D ballPosition = agent.getFieldPerception().getBall().getPosition();
 
-        if (agent.getSelfPerception().getSide() == EFieldSide.LEFT) {
+        if (agent.getCommander().getFieldSide() == EFieldSide.LEFT) {
             if (ballPosition.getX() > 0) {
                 return BTStatus.SUCCESS;
             }

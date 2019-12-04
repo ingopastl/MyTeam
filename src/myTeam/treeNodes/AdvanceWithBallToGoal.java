@@ -27,13 +27,13 @@ public class AdvanceWithBallToGoal extends BTNode<Player> {
 
 		if (agent.isAlignedTo(ballPos)) {
 			if (agent.isCloseTo(ballPos, 1.0)) {
-				agent.getCommander().doKickToPoint(40.0d, agent.getGoalPosition()); //da um toque adiante (forca baixa)
+				agent.getCommander().doKickToPointBlocking(40.0d, agent.getGoalPosition()); //da um toque adiante (forca baixa)
 				return BTStatus.SUCCESS;
 			} else {
 				agent.getCommander().doDashBlocking(100.0d); //chega mais perto da bola
 			}
 		} else {
-			agent.getCommander().doTurnToPoint(ballPos);
+			agent.getCommander().doTurnToPointBlocking(ballPos);
 		}
 
 		return BTStatus.RUNNING;

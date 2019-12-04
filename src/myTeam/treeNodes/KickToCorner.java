@@ -21,12 +21,12 @@ public class KickToCorner extends BTNode<Player> {
         if (agent.isAlignedTo(ballPos)) {
             if (agent.isCloseTo(ballPos, 1.0)) {
                 //da um chute com forca maxima (100)
-                agent.getCommander().doKickToPoint(80.0d, center);
+                agent.getCommander().doKickToPointBlocking(80.0d, center);
                 agent.getSelfPerception().setState(EPlayerState.NULL);
                 return BTStatus.SUCCESS;
             }
         } else {
-            agent.getCommander().doTurnToPoint(ballPos);
+            agent.getCommander().doTurnToPointBlocking(ballPos);
         }
 
         return BTStatus.RUNNING;

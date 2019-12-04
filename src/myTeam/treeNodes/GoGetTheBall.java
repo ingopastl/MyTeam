@@ -25,7 +25,7 @@ public class GoGetTheBall extends BTNode<Player> {
         if (agent.isAlignedTo(ballPosition)) {
             agent.getCommander().doDashBlocking(100.0d);
         } else {
-            agent.getCommander().doTurnToPoint(ballPosition);
+            agent.getCommander().doTurnToPointBlocking(ballPosition);
         }
         return BTStatus.RUNNING;
     }

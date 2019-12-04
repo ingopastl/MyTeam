@@ -19,14 +19,14 @@ public class KickToScore extends BTNode<Player> {
 		if (agent.isAlignedTo(ballPos)) {
 			if (agent.isCloseTo(ballPos, 1.0)) {
 				//da um chute com forca maxima (100)
-				agent.getCommander().doKickToPoint(100.0d, ballPos);
+				agent.getCommander().doKickToPointBlocking(100.0d, ballPos);
 				return BTStatus.SUCCESS;
 			} else {
 				//corre com forca intermediaria (porque esta perto da bola)
 				agent.getCommander().doDashBlocking(60.0d);
 			}
 		} else {
-			agent.getCommander().doTurnToPoint(ballPos);
+			agent.getCommander().doTurnToPointBlocking(ballPos);
 		}
 		
 		return BTStatus.RUNNING;

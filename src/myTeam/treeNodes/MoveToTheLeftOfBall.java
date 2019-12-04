@@ -23,7 +23,7 @@ public class MoveToTheLeftOfBall extends BTNode<Player> {
                 agent.getCommander().doDashBlocking(80.0d);
             }
         } else {
-            agent.getCommander().doTurnToPoint(target);
+            agent.getCommander().doTurnToPointBlocking(target);
         }
 
         return BTStatus.RUNNING;

@@ -20,7 +20,7 @@ public class PassBallToNearestPlayer extends BTNode<Player> {
 
         if (agent.isAlignedTo(ballPosition)) {
             if (agent.isCloseTo(ballPosition, 1.0)) {
-                agent.getCommander().doKickToPoint(50.0d, nearestTeammatePosition);
+                agent.getCommander().doKickToPointBlocking(50.0d, nearestTeammatePosition);
                 return BTStatus.SUCCESS;
             } else {
                 //corre com forca intermediaria (porque esta perto da bola)
@@ -28,7 +28,7 @@ public class PassBallToNearestPlayer extends BTNode<Player> {
                 return BTStatus.RUNNING;
             }
         } else {
-            agent.getCommander().doTurnToPoint(ballPosition);
+            agent.getCommander().doTurnToPointBlocking(ballPosition);
             return BTStatus.RUNNING;
         }
     }

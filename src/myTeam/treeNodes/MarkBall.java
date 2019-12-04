@@ -15,7 +15,7 @@ public class MarkBall extends BTNode<Player> {
         if (agent.isAlignedTo(direction)) {
             agent.getCommander().doDashBlocking(100.0d);
         } else {
-            agent.getCommander().doTurnToPoint(direction);
+            agent.getCommander().doTurnToPointBlocking(direction);
         }
 
         return BTStatus.RUNNING;

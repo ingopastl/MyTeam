@@ -10,7 +10,7 @@ public class DashToOffensivePosition extends BTNode<Player> {
     @Override
     public BTStatus tick(Player agent) {
         Vector2D offensivePosition;
-        if (agent.getSelfPerception().getSide() == EFieldSide.LEFT) {
+        if (agent.getCommander().getFieldSide() == EFieldSide.LEFT) {
             offensivePosition = new Vector2D(agent.getOffensivePosition().getX(), agent.getOffensivePosition().getY());
         } else {
             offensivePosition = new Vector2D(-agent.getOffensivePosition().getX(), -agent.getOffensivePosition().getY());
@@ -23,7 +23,7 @@ public class DashToOffensivePosition extends BTNode<Player> {
                 agent.getCommander().doDashBlocking(80.0d);
             }
         } else {
-            agent.getCommander().doTurnToPoint(offensivePosition);
+            agent.getCommander().doTurnToPointBlocking(offensivePosition);
             return BTStatus.RUNNING;
         }
 
