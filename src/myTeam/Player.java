@@ -237,12 +237,14 @@ public class Player extends Thread {
         afterGoalLeft.add(new FocusOnBall());
 
         Sequence<Player> freeKickFaultLeft = new Sequence<>();
+        freeKickFaultLeft.add(new IfFreeKickFaultLeft());
         freeKickFaultLeft.add(new IfTeamOnTheLeftSide());
         freeKickFaultLeft.add(new IfClosestToBall());
         freeKickFaultLeft.add(new GoGetTheBall());
         freeKickFaultLeft.add(new PassBallToNearestPlayer());
 
         Sequence<Player> freeKickFaultRight = new Sequence<>();
+        freeKickFaultRight.add(new IfFreeKickFaultRight());
         freeKickFaultRight.add(new IfTeamOnTheRightSide());
         freeKickFaultRight.add(new IfClosestToBall());
         freeKickFaultRight.add(new GoGetTheBall());
@@ -261,6 +263,20 @@ public class Player extends Thread {
         kickOffRight.add(new IfClosestToBall());
         kickOffRight.add(new GoGetTheBall());
         kickOffRight.add(new PassBallToNearestPlayer());
+
+        Sequence<Player> kickInLeft = new Sequence<>();
+        kickInLeft.add(new IfKickInLeft());
+        kickInLeft.add(new IfTeamOnTheLeftSide());
+        kickInLeft.add(new IfClosestToBall());
+        kickInLeft.add(new GoGetTheBall());
+        kickInLeft.add(new PassBallToNearestPlayer());
+
+        Sequence<Player> kickInRight = new Sequence<>();
+        kickInRight.add(new IfKickInRight());
+        kickInRight.add(new IfTeamOnTheRightSide());
+        kickInRight.add(new IfClosestToBall());
+        kickInRight.add(new GoGetTheBall());
+        kickInRight.add(new PassBallToNearestPlayer());
 
         Sequence<Player> cornerKickRight = new Sequence<>("Corner Kick Right");
         cornerKickRight.add(new IfCornerKickRight());
@@ -298,6 +314,12 @@ public class Player extends Thread {
 
         root.add(afterGoalLeft);
         root.add(afterGoalRight);
+
+        root.add(freeKickFaultLeft);
+        root.add(freeKickFaultRight);
+
+        root.add(kickInLeft);
+        root.add(kickInRight);
 
         root.add(cornerKickLeft);
         root.add(cornerKickRight);

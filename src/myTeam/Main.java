@@ -11,6 +11,6 @@ public class Main {
         //BTreeTeam team2 = new BTreeTeam("Enemy");
 
         team1.launchTeamAndServer();
-        //team2.launchTeam();
+        team2.launchTeam();
     }
 }
