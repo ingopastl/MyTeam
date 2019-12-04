@@ -14,11 +14,17 @@ public class FollowYBall extends BTNode<Player> {
         Vector2D followPosition = new Vector2D(- agent.getGoalPosition().getX(), ballPosition.getY());
 
         if (agent.isAlignedTo(followPosition)) {
-            agent.getCommander().doDashBlocking(50.0d);
-            return BTStatus.SUCCESS;
+            if (followPosition.getY() > -8.0d && followPosition.getY() < 8.0d) {
+                agent.getCommander().doDashBlocking(90.0d);
+                return BTStatus.SUCCESS;
+            }
+//            agent.getCommander().doDashBlocking(100.0d);
+//            return BTStatus.SUCCESS;
         } else {
             agent.getCommander().doTurnToPointBlocking(followPosition);
             return BTStatus.RUNNING;
         }
+
+        return BTStatus.FAILURE;
     }
 }

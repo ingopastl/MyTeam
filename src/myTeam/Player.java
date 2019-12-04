@@ -12,6 +12,7 @@ import easy_soccer_lib.utils.Vector2D;
 import myTeam.treeNodes.*;
 import myTeam.treeNodes.matchStateVerifiers.*;
 
+import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -182,16 +183,16 @@ public class Player extends Thread {
     }
 
     private BTNode<Player> buildOffensiveTree() {
-        //Sequence<Player> pass = new Sequence<>();
-        //pass.add(new IfEnemyIsApproachingAndFarFromGoal());
-        //pass.add(new PassBallToNearestPlayer());
+        Sequence<Player> pass = new Sequence<>();
+        pass.add(new IfEnemyIsApproachingAndFarFromGoal());
+        pass.add(new PassBallToNearestPlayer());
 
         Sequence<Player> advance = new Sequence<>();
         advance.add(new AdvanceWithBallToGoal());
         advance.add(new KickToScore());
 
         Selector<Player> advanceOrPass = new Selector<>();
-        //advanceOrPass.add(pass);
+        advanceOrPass.add(pass);
         advanceOrPass.add(advance);
 
         Sequence<Player> intercept = new Sequence<>("Closest to Ball");
@@ -230,6 +231,11 @@ public class Player extends Thread {
     }
 
     private BTNode<Player> buildRegularTree() {
+
+        Sequence<Player> beforeKickOff = new Sequence<>("Before Kick Off");
+        beforeKickOff.add(new IfBeforeKickOff());
+        beforeKickOff.add(new TeleportHome());
+
 
         Sequence<Player> afterGoalRight = new Sequence<>("After Goal Right");
         afterGoalRight.add(new IfAfterGoalRight());
@@ -278,14 +284,46 @@ public class Player extends Thread {
         kickOffRight.add(new PassBallToNearestPlayer());
 
 
+        Sequence<Player> cornerKickRight = new Sequence<>("Corner Kick Right");
+        cornerKickRight.add(new IfCornerKickRight());
+        kickOffRight.add(new IfClosestToBall());
+        kickOffRight.add(new KickToCorner());
+
+
+        Sequence<Player> cornerKickLeft = new Sequence<>("Corner Kick Right");
+        cornerKickLeft.add(new IfCornerKickLeft());
+        kickOffLeft.add(new IfClosestToBall());
+        kickOffLeft.add(new KickToCorner());
+
+        Sequence<Player> offsideRight = new Sequence<>("Kick In Right");
+        offsideRight.add(new IfKickInRight());
+        offsideRight.add(new GoGetTheBall());
+        offsideRight.add(new PassBallToNearestPlayer());
+
+        Sequence<Player> offsideLeft = new Sequence<>("Kick In Left");
+        offsideRight.add(new IfKickInLeft());
+        offsideLeft.add(new GoGetTheBall());
+        offsideLeft.add(new PassBallToNearestPlayer());
+
+        Selector<Player> playOn = new Selector<>("Play On");
+        playOn.add(buildOffensiveTree());
+        playOn.add(buildDefensiveTree());
+
+
         Selector<Player> root = new Selector<>("Root");
+        root.add(beforeKickOff);
         root.add(afterGoalLeft);
         root.add(afterGoalRight);
 
         root.add(kickOffLeft);
         root.add(kickOffRight);
-        root.add(buildOffensiveTree());
-        root.add(buildDefensiveTree());
+        root.add(playOn);
+
+        root.add(cornerKickLeft);
+        root.add(cornerKickRight);
+
+        root.add(offsideLeft);
+        root.add(offsideRight);
 
         return root;
     }
